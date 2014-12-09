@@ -43,16 +43,15 @@ module ProfileIt
     # This is called via +ProfileIt::Agent.instance.start+ when ProfileIt is required in a Ruby application.
     # It initializes the agent and starts the worker thread (if appropiate).
     def start(options = {})
-      raise "hey!!!"
       @options.merge!(options)
       init_logger
       logger.info "Attempting to start profileit.io [#{ProfileIt::VERSION}] on [#{Socket.gethostname}]"
-      if !config.settings['profile'] and !@options[:force]
+      if !config.settings['profile'] and environment.env != 'development' and !@options[:force]
         logger.warn "Profiling isn't enabled for the [#{environment.env}] environment."
         return false
-      elsif !environment.app_server
-        logger.warn "Couldn't find a supported app server. Not starting agent."
-        return false
+      # elsif !environment.app_server
+      #   logger.warn "Couldn't find a supported app server. Not starting agent."
+      #   return false
       elsif started?
         logger.warn "Already started profileit.io."
         return false
@@ -60,7 +59,7 @@ module ProfileIt
       @started = true
       logger.info "Starting profiling. Framework [#{environment.framework}] App Server [#{environment.app_server}]."
       start_instruments
-      logger.info "Scout Agent [#{ProfileIt::VERSION}] Initialized"
+      logger.info "ProfileIt [#{ProfileIt::VERSION}] Initialized"
     end
    
     def started?

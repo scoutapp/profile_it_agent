@@ -67,8 +67,8 @@ class ProfileIt::Store
     meta.scope = nil if stack_empty
     
     # add backtrace for slow calls ... how is exclusive time handled?
-    if duration > ProfileIt::TransactionSample::BACKTRACE_THRESHOLD and !stack_empty
-      meta.extra = {:backtrace => ProfileIt::TransactionSample.backtrace_parser(caller)}
+    if duration > ProfileIt::TransactionProfile::BACKTRACE_THRESHOLD and !stack_empty
+      meta.extra = {:backtrace => ProfileIt::TransactionProfile.backtrace_parser(caller)}
     end
     stat = transaction_hash[meta] || ProfileIt::MetricStats.new(!stack_empty)
     stat.update!(duration,duration-item.children_time)
@@ -77,7 +77,7 @@ class ProfileIt::Store
     # Uses controllers as the entry point for a transaction. Otherwise, stats are ignored.
     if stack_empty and meta.metric_name.match(/\AController\//)
       aggs=aggregate_calls(transaction_hash.dup,meta)
-      store_sample(options[:uri],transaction_hash.dup.merge(aggs),meta,stat)  
+      store_transaction(options[:uri],transaction_hash.dup.merge(aggs),meta,stat)  
       # deep duplicate  
       duplicate = aggs.dup
       duplicate.each_pair do |k,v|
@@ -87,12 +87,12 @@ class ProfileIt::Store
     end
   end
   
-  # TODO - Move more logic to TransactionSample
+  # TODO - Move more logic to TransactionProfile
   #
   # Limits the size of the transaction hash to prevent a large transactions. The final item on the stack
   # is allowed to be stored regardless of hash size to wrapup the transaction sample w/the parent metric.
   def store_metric?(stack_empty)
-    transaction_hash.size < ProfileIt::TransactionSample::MAX_SIZE or stack_empty
+    transaction_hash.size < ProfileIt::TransactionProfile::MAX_SIZE or stack_empty
   end
   
   # Returns the top-level category names used in the +metrics+ hash.
@@ -125,13 +125,19 @@ class ProfileIt::Store
     aggregates
   end
   
+  # OLD STORE SAMPLE
   # Stores the slowest transaction. This will be sent to the server.
   def store_sample(uri,transaction_hash,parent_meta,parent_stat,options = {})    
     @transaction_sample_lock.synchronize do
       if parent_stat.total_call_time >= 2 and (@sample.nil? or (@sample and parent_stat.total_call_time > @sample.total_call_time))
-        @sample = ProfileIt::TransactionSample.new(uri,parent_meta.metric_name,parent_stat.total_call_time,transaction_hash.dup)
+        @sample = ProfileIt::TransactionProfile.new(uri,parent_meta.metric_name,parent_stat.total_call_time,transaction_hash.dup)
       end
     end
+  end
+
+  def store_transaction(uri,transaction_hash,parent_meta,parent_stat,options = {})
+    transaction = ProfileIt::TransactionProfile.new(uri,parent_meta.metric_name,parent_stat.total_call_time,transaction_hash.dup)
+    ProfileIt::Agent.instance.send_transaction(transaction)
   end
   
   # Finds or creates the metric w/the given name in the metric_hash, and updates the time. Primarily used to 

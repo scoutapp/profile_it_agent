@@ -2,7 +2,9 @@ module ProfileIt
   class Config   
     DEFAULTS =  {
         'host' => 'profileit.io',
-        'log_level' => 'info'
+        'log_level' => 'debug', # changed from info for dev
+        'name' => 'LOCAL APP',
+        'key' => 'DEV'
     }
 
     def initialize(config_path = nil)

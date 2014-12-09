@@ -3,8 +3,31 @@ module ProfileIt
   class Agent
     module Reporting
      
+      # def checkin_uri
+      #   URI.parse("http://#{config.settings['host']}/app/#{config.settings['key']}/checkin.scout?name=#{CGI.escape(config.settings['name'])}")
+      # end
+
       def checkin_uri
+        binding.pry
         URI.parse("http://#{config.settings['host']}/app/#{config.settings['key']}/checkin.scout?name=#{CGI.escape(config.settings['name'])}")
+      end
+
+      def send_transaction(transaction)
+        Thread.new do 
+          begin
+            response =  post( checkin_uri,
+                                 Marshal.dump(:transaction => transaction),
+                                 "Content-Type"     => "application/json" ) # not json...why json here?
+            if response and response.is_a?(Net::HTTPSuccess)
+              logger.debug "Transaction Profile Sent."
+            else
+              logger.debug "Error sending transaction sample."
+            end
+          rescue Exception => e
+            logger.error "Exception sending transaction sample: [#{e}]"
+            logger.error e.backtrace.join("\n")
+          end
+        end
       end
 
       def post(url, body, headers = Hash.new)
