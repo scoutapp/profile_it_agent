@@ -5,11 +5,10 @@ module ProfileIt::Instruments
     def process_action(*args)
       scout_controller_action = "Controller/#{controller_path}/#{action_name}"
       #ProfileIt::Agent.instance.logger.debug "Processing #{scout_controller_action}"
-      self.class.trace(scout_controller_action, :uri => request.fullpath) do
+      self.class.trace(scout_controller_action, :uri => request.fullpath, :request_id => request.env["action_dispatch.request_id"]) do
         begin
           super
         rescue Exception => e
-          ProfileIt::Agent.instance.store.track!("Errors/Request",1, :scope => nil)
           raise
         ensure
           Thread::current[:scout_scope_name] = nil

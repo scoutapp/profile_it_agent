@@ -2,7 +2,7 @@ class ProfileIt::TransactionProfile
   BACKTRACE_THRESHOLD = 0.5 # the minimum threshold to record the backtrace for a metric.
   BACKTRACE_LIMIT = 5 # Max length of callers to display
   MAX_SIZE = 100 # Limits the size of the metric hash to prevent a metric explosion.
-  attr_reader :metric_name, :total_call_time, :metrics, :meta, :uri
+  attr_reader :metric_name, :total_call_time, :metrics, :meta, :uri, :request_id
   
   # Given a call stack, generates a filtered backtrace that:
   # * Limits to the app/models, app/controllers, or app/views directories
@@ -19,10 +19,21 @@ class ProfileIt::TransactionProfile
     stack
   end
   
-  def initialize(uri,metric_name,total_call_time,metrics)
+  def initialize(uri,request_id,metric_name,total_call_time,metrics)
     @uri = uri
     @metric_name = metric_name
     @total_call_time = total_call_time
+    @request_id = request_id
     @metrics = metrics
+  end
+
+  def to_form_data
+    {
+      "transaction[uri]" => uri,
+      "transaction[metric_name]" => metric_name,
+      "transaction[total_call_time]" => total_call_time,
+      "transaction[request_id]" => request_id,
+      "transaction[metrics]" => metrics.map(&:to_json)
+    }
   end
 end

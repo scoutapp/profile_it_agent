@@ -77,7 +77,7 @@ class ProfileIt::Store
     # Uses controllers as the entry point for a transaction. Otherwise, stats are ignored.
     if stack_empty and meta.metric_name.match(/\AController\//)
       aggs=aggregate_calls(transaction_hash.dup,meta)
-      store_transaction(options[:uri],transaction_hash.dup.merge(aggs),meta,stat)  
+      store_transaction(options[:uri],options[:request_id],transaction_hash.dup.merge(aggs),meta,stat)  
       # deep duplicate  
       duplicate = aggs.dup
       duplicate.each_pair do |k,v|
@@ -124,19 +124,9 @@ class ProfileIt::Store
     end # categories.each    
     aggregates
   end
-  
-  # OLD STORE SAMPLE
-  # Stores the slowest transaction. This will be sent to the server.
-  def store_sample(uri,transaction_hash,parent_meta,parent_stat,options = {})    
-    @transaction_sample_lock.synchronize do
-      if parent_stat.total_call_time >= 2 and (@sample.nil? or (@sample and parent_stat.total_call_time > @sample.total_call_time))
-        @sample = ProfileIt::TransactionProfile.new(uri,parent_meta.metric_name,parent_stat.total_call_time,transaction_hash.dup)
-      end
-    end
-  end
 
-  def store_transaction(uri,transaction_hash,parent_meta,parent_stat,options = {})
-    transaction = ProfileIt::TransactionProfile.new(uri,parent_meta.metric_name,parent_stat.total_call_time,transaction_hash.dup)
+  def store_transaction(uri,request_id,transaction_hash,parent_meta,parent_stat,options = {})
+    transaction = ProfileIt::TransactionProfile.new(uri,request_id,parent_meta.metric_name,parent_stat.total_call_time,transaction_hash.dup)
     ProfileIt::Agent.instance.send_transaction(transaction)
   end
   

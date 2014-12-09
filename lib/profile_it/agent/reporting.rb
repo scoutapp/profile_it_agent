@@ -10,9 +10,7 @@ module ProfileIt
       def send_transaction(transaction)
         Thread.new do 
           begin
-            response =  post( checkin_uri,
-                                 Marshal.dump(:transaction => transaction),
-                                 "Content-Type"     => "application/json" ) # not json...why json here?
+            response =  post( checkin_uri, transaction.to_form_data)
             if response and response.is_a?(Net::HTTPSuccess)
               logger.debug "Transaction Profile Sent."
             else
@@ -25,13 +23,13 @@ module ProfileIt
         end
       end
 
-      def post(url, body, headers = Hash.new)
+      def post(url, data, headers = Hash.new)
         response = nil
         request(url) do |connection|
           post = Net::HTTP::Post.new( url.path +
                                       (url.query ? ('?' + url.query) : ''),
                                       HTTP_HEADERS.merge(headers) )
-          post.body = body
+          post.set_form_data(data)
           response=connection.request(post)
         end
         response
