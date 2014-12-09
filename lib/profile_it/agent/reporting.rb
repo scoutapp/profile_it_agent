@@ -3,13 +3,8 @@ module ProfileIt
   class Agent
     module Reporting
      
-      # def checkin_uri
-      #   URI.parse("http://#{config.settings['host']}/app/#{config.settings['key']}/checkin.scout?name=#{CGI.escape(config.settings['name'])}")
-      # end
-
       def checkin_uri
-        binding.pry
-        URI.parse("http://#{config.settings['host']}/app/#{config.settings['key']}/checkin.scout?name=#{CGI.escape(config.settings['name'])}")
+        URI.parse("http://#{config.settings['host']}/#{config.settings['key']}/transaction_profiles/create?name=#{CGI.escape(config.settings['name'])}")
       end
 
       def send_transaction(transaction)
