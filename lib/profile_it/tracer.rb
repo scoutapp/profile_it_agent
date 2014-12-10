@@ -45,22 +45,22 @@ module ProfileIt::Tracer
       end
     end
     
-    def instrument_method(method,options = {})
+    def profile_it_instrument_method(method,options = {})
       metric_name = options[:metric_name] || default_metric_name(method)
       return if !instrumentable?(method) or instrumented?(method,metric_name)
       class_eval instrumented_method_string(method, {:metric_name => metric_name, :scope => options[:scope]}), __FILE__, __LINE__
       
-      alias_method _uninstrumented_method_name(method, metric_name), method
-      alias_method method, _instrumented_method_name(method, metric_name)
+      alias_method _profile_it_uninstrumented_method_name(method, metric_name), method
+      alias_method method, _profile_it_instrumented_method_name(method, metric_name)
     end
     
     private
     
     def instrumented_method_string(method, options)
       klass = (self === Module) ? "self" : "self.class"
-      "def #{_instrumented_method_name(method, options[:metric_name])}(*args, &block)
-        result = #{klass}.instrument(\"#{options[:metric_name]}\",{:scope => #{options[:scope] || false}}) do
-          #{_uninstrumented_method_name(method, options[:metric_name])}(*args, &block)
+      "def #{_profile_it_instrumented_method_name(method, options[:metric_name])}(*args, &block)
+        result = #{klass}.profile_it_instrument(\"#{options[:metric_name]}\",{:scope => #{options[:scope] || false}}) do
+          #{_profile_it_uninstrumented_method_name(method, options[:metric_name])}(*args, &block)
         end
         result
       end"
@@ -75,7 +75,7 @@ module ProfileIt::Tracer
     
     # +True+ if the method is already instrumented. 
     def instrumented?(method,metric_name)
-      instrumented = method_defined?(_instrumented_method_name(method, metric_name))
+      instrumented = method_defined?(_profile_it_instrumented_method_name(method, metric_name))
       ProfileIt::Agent.instance.logger.warn "The method [#{self.name}##{method}] has already been instrumented" if instrumented
       instrumented
     end
@@ -86,13 +86,13 @@ module ProfileIt::Tracer
     
     # given a method and a metric, this method returns the
     # untraced alias of the method name
-    def _uninstrumented_method_name(method, metric_name)
+    def _profile_it_uninstrumented_method_name(method, metric_name)
       "#{_sanitize_name(method)}_without_profile_it_instrument_#{_sanitize_name(metric_name)}"
     end
     
     # given a method and a metric, this method returns the traced
     # alias of the method name
-    def _instrumented_method_name(method, metric_name)
+    def _profile_it_instrumented_method_name(method, metric_name)
       name = "#{_sanitize_name(method)}_with_profile_it_instrument_#{_sanitize_name(metric_name)}"
     end
     

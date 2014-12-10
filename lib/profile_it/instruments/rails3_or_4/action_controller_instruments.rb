@@ -31,6 +31,6 @@ if defined?(ActionView) && defined?(ActionView::PartialRenderer)
   ProfileIt::Agent.instance.logger.debug "Instrumenting ActionView::PartialRenderer"
   ActionView::PartialRenderer.class_eval do
     include ProfileIt::Tracer
-    instrument_method :render_partial, :metric_name => 'View/#{@template.virtual_path}/Rendering', :scope => true
+    profile_it_instrument_method :render_partial, :metric_name => 'View/#{@template.virtual_path}/Rendering', :scope => true
   end
 end

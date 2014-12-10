@@ -41,6 +41,6 @@ if defined?(ActionController) && defined?(ActionController::Base)
   ProfileIt::Agent.instance.logger.debug "Instrumenting ActionView::Template"
   ActionView::Template.class_eval do
     include ::ProfileIt::Tracer
-    instrument_method :render, :metric_name => 'View/#{path[%r{^(/.*/)?(.*)$},2]}/Rendering', :scope => true
+    profile_it_instrument_method :render, :metric_name => 'View/#{path[%r{^(/.*/)?(.*)$},2]}/Rendering', :scope => true
   end
 end

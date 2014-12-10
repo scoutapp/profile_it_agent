@@ -4,7 +4,7 @@ if defined?(::Mongoid) and !defined?(::Moped)
   Mongoid::Collection.class_eval do
     include ProfileIt::Tracer
     (Mongoid::Collections::Operations::ALL - [:<<, :[]]).each do |method|
-      instrument_method method, :metric_name => "MongoDB/\#{@klass}/#{method}"
+      profile_it_instrument_method method, :metric_name => "MongoDB/\#{@klass}/#{method}"
     end
   end
 end

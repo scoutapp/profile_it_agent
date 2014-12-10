@@ -8,17 +8,17 @@ module ProfileIt
       end
 
       def send_transaction(transaction)
-        logger.debug "Sending transaction profile."
+        logger.debug "Sending transaction profile [#{transaction.uri}]."
         Thread.new do 
           begin
             response =  post( checkin_uri, transaction.to_form_data)
             if response and response.is_a?(Net::HTTPSuccess)
-              logger.debug "Transaction Profile Sent."
+              logger.debug "Transaction Profile Sent [#{transaction.uri}]."
             else
-              logger.debug "Error sending transaction sample."
+              logger.debug "Error sending transaction sample [#{transaction.uri}]."
             end
           rescue Exception => e
-            logger.error "Exception sending transaction sample: [#{e}]"
+            logger.error "Exception sending transaction sample [#{transaction.uri}]: [#{e}]"
             logger.error e.backtrace.join("\n")
           end
         end
