@@ -3,7 +3,7 @@ class ProfileIt::MetricMeta
   def initialize(metric_name, options = {})
     @metric_name = metric_name
     @metric_id = nil
-    @scope = Thread::current[:scout_sub_scope] || Thread::current[:scout_scope_name]
+    @scope = Thread::current[:profile_it_sub_scope] || Thread::current[:profile_it_scope_name]
     @desc = options[:desc]
     @extra = {}
   end

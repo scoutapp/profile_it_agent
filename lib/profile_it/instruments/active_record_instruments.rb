@@ -5,22 +5,22 @@ module ProfileIt::Instruments
     def self.included(instrumented_class)
       ProfileIt::Agent.instance.logger.debug "Instrumenting #{instrumented_class.inspect}"
       instrumented_class.class_eval do
-        unless instrumented_class.method_defined?(:log_without_scout_instruments)
-          alias_method :log_without_scout_instruments, :log
-          alias_method :log, :log_with_scout_instruments
+        unless instrumented_class.method_defined?(:log_without_profile_it_instruments)
+          alias_method :log_without_profile_it_instruments, :log
+          alias_method :log, :log_with_profile_it_instruments
           protected :log
         end
       end
     end # self.included
     
-    def log_with_scout_instruments(*args, &block)
+    def log_with_profile_it_instruments(*args, &block)
       sql, name = args
-      self.class.instrument(scout_ar_metric_name(sql,name), :desc => scout_sanitize_sql(sql)) do
-        log_without_scout_instruments(sql, name, &block)
+      self.class.profile_it_instrument(profile_it_ar_metric_name(sql,name), :desc => profile_it_sanitize_sql(sql)) do
+        log_without_profile_it_instruments(sql, name, &block)
       end
     end
     
-    def scout_ar_metric_name(sql,name)
+    def profile_it_ar_metric_name(sql,name)
       # sql: SELECT "places".* FROM "places"  ORDER BY "places"."position" ASC
       # name: Place Load
       if name && (parts = name.split " ") && parts.size == 2
@@ -46,7 +46,7 @@ module ProfileIt::Instruments
     
     # Removes actual values from SQL. Used to both obfuscate the SQL and group 
     # similar queries in the UI.
-    def scout_sanitize_sql(sql)
+    def profile_it_sanitize_sql(sql)
       return nil if sql.length > 1000 # safeguard - don't sanitize large SQL statements
       sql = sql.dup
       sql.gsub!(/\\"/, '') # removing escaping double quotes

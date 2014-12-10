@@ -3,7 +3,7 @@ module ProfileIt
   #
   # Each Agent object creates a worker thread (unless monitoring is disabled or we're forking). 
   # The worker thread wakes up every +Agent#period+, merges in-memory metrics w/those saved to disk, 
-  # saves the merged data to disk, and sends it to the Scout server.
+  # saves the merged data to disk, and sends it to the profile_it server.
   class Agent
     # Headers passed up with all API requests.
     HTTP_HEADERS = { "Agent-Hostname" => Socket.gethostname }

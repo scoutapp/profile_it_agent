@@ -3,15 +3,14 @@ module ProfileIt::Instruments
   module ActionControllerInstruments
     # Instruments the action and tracks errors.
     def process_action(*args)
-      scout_controller_action = "Controller/#{controller_path}/#{action_name}"
-      #ProfileIt::Agent.instance.logger.debug "Processing #{scout_controller_action}"
-      self.class.trace(scout_controller_action, :uri => request.fullpath, :request_id => request.env["action_dispatch.request_id"]) do
+      profile_it_controller_action = "Controller/#{controller_path}/#{action_name}"
+      self.class.profile_request(profile_it_controller_action, :uri => request.fullpath, :request_id => request.env["action_dispatch.request_id"]) do
         begin
           super
         rescue Exception => e
           raise
         ensure
-          Thread::current[:scout_scope_name] = nil
+          Thread::current[:profile_it_scope_name] = nil
         end
       end
     end

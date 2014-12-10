@@ -1,4 +1,4 @@
-# Methods related to sending metrics to scoutapp.com.
+# Methods related to sending metrics to profile_itapp.com.
 module ProfileIt
   class Agent
     module Reporting
@@ -8,6 +8,7 @@ module ProfileIt
       end
 
       def send_transaction(transaction)
+        logger.debug "Sending transaction profile."
         Thread.new do 
           begin
             response =  post( checkin_uri, transaction.to_form_data)
