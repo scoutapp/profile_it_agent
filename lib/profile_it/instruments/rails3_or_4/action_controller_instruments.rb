@@ -3,15 +3,21 @@ module ProfileIt::Instruments
   module ActionControllerInstruments
     # Instruments the action and tracks errors.
     def process_action(*args)
-      profile_it_controller_action = "Controller/#{controller_path}/#{action_name}"
-      self.class.profile_request(profile_it_controller_action, :uri => request.fullpath, :request_id => request.env["action_dispatch.request_id"]) do
-        begin
-          super
-        rescue Exception => e
-          raise
-        ensure
-          Thread::current[:profile_it_scope_name] = nil
+      key_from_headers = request.headers['x-profileit-key']
+      # ProfileIt::Agent.instance.logger.debug "in perform_action_with_profile_it_instruments request key = #{key_from_headers}. config key = #{ProfileIt::Agent.instance.config.settings['key']}. "
+      if !key_from_headers.blank? && key_from_headers == ProfileIt::Agent.instance.config.settings['key']
+        profile_it_controller_action = "Controller/#{controller_path}/#{action_name}"
+        self.class.profile_request(profile_it_controller_action, :uri => request.fullpath, :request_id => request.env["action_dispatch.request_id"]) do
+          begin
+            super
+          rescue Exception => e
+            raise
+          ensure
+            Thread::current[:profile_it_scope_name] = nil
+          end
         end
+      else
+        super
       end
     end
   end
