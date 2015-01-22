@@ -33,7 +33,7 @@ class ProfileIt::TransactionProfile
       "transaction[metric_name]" => metric_name,
       "transaction[total_call_time]" => total_call_time,
       "transaction[request_id]" => request_id,
-      "transaction[metrics]" => metrics.map(&:to_json).to_s
+      "transaction[metrics]" => Marshal.dump(metrics)
     }
   end
 end

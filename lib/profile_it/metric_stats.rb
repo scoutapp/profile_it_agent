@@ -41,9 +41,10 @@ class ProfileIt::MetricStats
     self
   end
   
+  # THIS ISN'T USED ANYMORE. STILL A CONFLICT ISSUE?
   # To avoid conflicts with different JSON libaries handle JSON ourselves. 
   # Time-based metrics are converted to milliseconds from seconds.
   def to_json(*a)
-     %Q[{"total_exclusive_time":#{total_exclusive_time*1000},"min_call_time":#{min_call_time*1000},"call_count":#{call_count},"sum_of_squares":#{sum_of_squares*1000},"total_call_time":#{total_call_time*1000},"max_call_time":#{max_call_time*1000}}]
+    %Q[{"total_exclusive_time":#{total_exclusive_time*1000},"min_call_time":#{min_call_time*1000},"call_count":#{call_count},"sum_of_squares":#{sum_of_squares*1000},"total_call_time":#{total_call_time*1000},"max_call_time":#{max_call_time*1000}}]
   end
 end # class MetricStats

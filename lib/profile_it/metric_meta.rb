@@ -12,7 +12,7 @@ class ProfileIt::MetricMeta
   attr_accessor :client_id
   attr_accessor :desc, :extra
   
-  # To avoid conflicts with different JSON libaries
+  # To avoid conflicts with different JSON libaries. THIS ISN'T USED ANYMORE. STILL A CONFLICT ISSUE?
   def to_json(*a)
      %Q[{"metric_id":#{metric_id || 'null'},"metric_name":#{metric_name.to_json},"scope":#{scope.to_json || 'null'}}]
   end
