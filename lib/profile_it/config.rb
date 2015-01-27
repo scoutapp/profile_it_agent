@@ -1,7 +1,7 @@
 module ProfileIt
   class Config   
     DEFAULTS =  {
-        'host' => 'localhost:3001', # changed from profileit.io for dev
+        'host' => 'profileit.io', 
         'log_level' => 'debug', # changed from info for dev
         'name' => 'LOCAL APP',
         'key' => 'DEV'
