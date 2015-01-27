@@ -46,7 +46,7 @@ module ProfileIt
       @options.merge!(options)
       init_logger
       logger.info "Attempting to start profileit.io [#{ProfileIt::VERSION}] on [#{Socket.gethostname}]"
-      if !config.settings['profile'] and environment.env != 'development' and !@options[:force]
+      if !config.settings['profile']
         logger.warn "Profiling isn't enabled for the [#{environment.env}] environment."
         return false
       # elsif !environment.app_server
