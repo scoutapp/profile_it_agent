@@ -45,7 +45,7 @@ module ProfileIt
     def start(options = {})
       @options.merge!(options)
       init_logger
-      logger.info "Attempting to start profileit.io [#{ProfileIt::VERSION}] on [#{Socket.gethostname}]"
+      logger.info "Attempting to start profileit.io [#{ProfileIt::VERSION}] on [#{Socket.gethostname}] reporting to #{config.settings['host']}"
       if !config.settings['profile']
         logger.warn "Profiling isn't enabled for the [#{environment.env}] environment."
         return false
