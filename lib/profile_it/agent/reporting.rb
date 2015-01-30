@@ -4,7 +4,7 @@ module ProfileIt
     module Reporting
      
       def checkin_uri
-        URI.parse("http://#{config.settings['host']}/#{config.settings['key']}/transaction_profiles/create?name=#{CGI.escape(config.settings['name'])}")
+        URI.parse("#{config.settings['host']}/#{config.settings['key']}/transaction_profiles/create?name=#{CGI.escape(config.settings['name'])}")
       end
 
       def send_transaction(transaction)
@@ -31,6 +31,7 @@ module ProfileIt
                                       (url.query ? ('?' + url.query) : ''),
                                       HTTP_HEADERS.merge(headers) )
           post.set_form_data(data)
+
           response=connection.request(post)
         end
         response
@@ -38,7 +39,7 @@ module ProfileIt
 
       def request(url, &connector)
         response           = nil
-        response           = http(url).start(&connector)
+        response           = build_http(url).start(&connector)
         logger.debug "got response: #{response.inspect}"
         case response
         when Net::HTTPSuccess, Net::HTTPNotModified
@@ -54,12 +55,20 @@ module ProfileIt
         response
       end
 
-      # Take care of the http proxy, if specified in config.
-      # Given a blank string, the proxy_uri URI instance's host/port/user/pass will be nil.
-      # Net::HTTP::Proxy returns a regular Net::HTTP class if the first argument (host) is nil.
-      def http(url)
+      # take care of http/https proxy, if specified in command line options
+      # Given a blank string, the proxy_uri URI instance's host/port/user/pass will be nil
+      # Net::HTTP::Proxy returns a regular Net::HTTP class if the first argument (host) is nil
+      def build_http(uri)
         proxy_uri = URI.parse(config.settings['proxy'].to_s)
-        Net::HTTP::Proxy(proxy_uri.host,proxy_uri.port,proxy_uri.user,proxy_uri.password).new(url.host, url.port)
+        http = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.port).new(uri.host, uri.port)
+
+        if uri.is_a?(URI::HTTPS)
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          # TODO http.ca_file = ... see scout agent http.rb
+          # TODO http.verify_mode = ... see scout agent http.rb
+        end
+        http
       end
     end # module Reporting
     include Reporting

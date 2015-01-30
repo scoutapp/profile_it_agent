@@ -3,6 +3,7 @@ end
 require 'socket'
 require 'set'
 require 'net/http'
+require 'net/https'
 require 'logger'
 require 'yaml'
 require 'cgi'
