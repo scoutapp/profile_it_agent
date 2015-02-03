@@ -4,14 +4,15 @@ module ProfileIt
     module Reporting
      
       def checkin_uri
-        URI.parse("#{config.settings['host']}/#{config.settings['key']}/transaction_profiles/create?name=#{CGI.escape(config.settings['name'])}")
+        URI.parse("#{config.settings['host']}/#{config.settings['key']}/transaction_profiles/create?name=#{CGI.escape(config.settings['name'])}&rails_version=#{Rails::VERSION::STRING}&gem_version=#{ProfileIt::VERSION}&extension_version=#{Thread::current[:profile_it_extension_version]}&f=#{Thread::current[:profile_it_extension_fingerprint]}&u=#{Thread::current[:profile_it_user_guid]}")
       end
 
       def send_transaction(transaction)
         logger.debug "Sending transaction profile [#{transaction.uri}]."
-        Thread.new do 
+        uri = checkin_uri
+        Thread.new do
           begin
-            response =  post( checkin_uri, transaction.to_form_data)
+            response =  post( uri , transaction.to_form_data)
             if response and response.is_a?(Net::HTTPSuccess)
               logger.debug "Transaction Profile Sent [#{transaction.uri}]."
             else

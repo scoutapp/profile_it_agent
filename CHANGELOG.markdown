@@ -1,3 +1,7 @@
+# 0.2.3
+
+* send version information and GUIDs from the extension
+
 # 0.2.2
 
 * SSL connections to host
