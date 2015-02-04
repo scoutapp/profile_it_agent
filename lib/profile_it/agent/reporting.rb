@@ -4,15 +4,20 @@ module ProfileIt
     module Reporting
      
       def checkin_uri
-        URI.parse("#{config.settings['host']}/#{config.settings['key']}/transaction_profiles/create?name=#{CGI.escape(config.settings['name'])}&rails_version=#{Rails::VERSION::STRING}&gem_version=#{ProfileIt::VERSION}&extension_version=#{Thread::current[:profile_it_extension_version]}&f=#{Thread::current[:profile_it_extension_fingerprint]}&u=#{Thread::current[:profile_it_user_guid]}")
+        URI.parse("#{config.settings['host']}/#{config.settings['key']}/profiles/create?name=#{CGI.escape(config.settings['name'])}&rails_version=#{Rails::VERSION::STRING}&gem_version=#{ProfileIt::VERSION}")
       end
 
       def send_transaction(transaction)
-        logger.debug "Sending transaction profile [#{transaction.uri}]."
         uri = checkin_uri
+        logger.debug "Sending transaction profile [#{transaction.uri}] to #{uri}"
+        form_data = transaction.to_form_data.merge({
+                "profile[extension_version]" => Thread::current[:profile_it_extension_version],
+                "profile[extension_fingerprint]" => Thread::current[:profile_it_extension_fingerprint],
+                "profile[user_id]" => Thread::current[:profile_it_user_id]
+            })
         Thread.new do
           begin
-            response =  post( uri , transaction.to_form_data)
+            response =  post(uri, form_data)
             if response and response.is_a?(Net::HTTPSuccess)
               logger.debug "Transaction Profile Sent [#{transaction.uri}]."
             else

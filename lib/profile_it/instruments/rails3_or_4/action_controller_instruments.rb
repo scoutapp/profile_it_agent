@@ -9,8 +9,8 @@ module ProfileIt::Instruments
         profile_it_controller_action = "Controller/#{controller_path}/#{action_name}"
         self.class.profile_request(profile_it_controller_action, :uri => request.fullpath, :request_id => request.env["action_dispatch.request_id"]) do
           Thread::current[:profile_it_extension_fingerprint]=request.headers['x-profileit-extension-fingerprint']
-          Thread::current[:profile_it_user_guid]=request.headers['x-profileit-user-guid']
-          Thread::current[:profile_it_user_version]=request.headers['x-profileit-user-version']
+          Thread::current[:profile_it_extension_version]=request.headers['x-profileit-extension-version']
+          Thread::current[:profile_it_user_id]=request.headers['x-profileit-user-id']
           begin
             super
           rescue Exception => e

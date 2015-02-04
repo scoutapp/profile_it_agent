@@ -29,11 +29,11 @@ class ProfileIt::TransactionProfile
 
   def to_form_data
     {
-      "transaction[uri]" => uri,
-      "transaction[metric_name]" => metric_name,
-      "transaction[total_call_time]" => total_call_time,
-      "transaction[request_id]" => request_id,
-      "transaction[metrics]" => Marshal.dump(metrics)
+      "profile[uri]" => uri,
+      "profile[metric_name]" => metric_name,
+      "profile[total_call_time]" => total_call_time,
+      "profile[id]" => request_id,
+      "profile[metrics]" => Marshal.dump(metrics)
     }
   end
 end
