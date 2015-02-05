@@ -68,8 +68,8 @@ class ProfileIt::Store
     meta.scope = nil if stack_empty
     
     # add backtrace for slow calls ... how is exclusive time handled?
-    if duration > ProfileIt::profileProfile::BACKTRACE_THRESHOLD and !stack_empty
-      meta.extra = {:backtrace => ProfileIt::profileProfile.backtrace_parser(caller)}
+    if duration > ProfileIt::Profile::BACKTRACE_THRESHOLD and !stack_empty
+      meta.extra = {:backtrace => ProfileIt::Profile.backtrace_parser(caller)}
     end
     stat = profile_hash[meta] || ProfileIt::MetricStats.new(!stack_empty)
     stat.update!(duration,duration-item.children_time)
@@ -87,12 +87,12 @@ class ProfileIt::Store
     end
   end
   
-  # TODO - Move more logic to profileProfile
+  # TODO - Move more logic to Profile
   #
   # Limits the size of the profile hash to prevent a large profiles. The final item on the stack
   # is allowed to be stored regardless of hash size to wrapup the profile sample w/the parent metric.
   def store_metric?(stack_empty)
-    profile_hash.size < ProfileIt::profileProfile::MAX_SIZE or stack_empty
+    profile_hash.size < ProfileIt::Profile::MAX_SIZE or stack_empty
   end
   
   # Returns the top-level category names used in the +metrics+ hash.
@@ -126,7 +126,7 @@ class ProfileIt::Store
   end
 
   def store_profile(uri,request_id,profile_hash,parent_meta,parent_stat,options = {})
-    profile = ProfileIt::profileProfile.new(uri,request_id,parent_meta.metric_name,parent_stat.total_call_time,profile_hash.dup)
+    profile = ProfileIt::Profile.new(uri,request_id,parent_meta.metric_name,parent_stat.total_call_time,profile_hash.dup)
     ProfileIt::Agent.instance.send_profile(profile)
   end
   
