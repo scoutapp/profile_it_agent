@@ -12,7 +12,7 @@ module ProfileIt::Instruments
     end # self.included
 
     # In addition to instrumenting actions, this also sets the scope to the controller action name. The scope is later
-    # applied to metrics recorded during this transaction. This lets us associate ActiveRecord calls with 
+    # applied to metrics recorded during this profile. This lets us associate ActiveRecord calls with 
     # specific controller actions.
     def perform_action_with_profile_it_instruments(*args, &block)
       key_from_headers = request.headers['x-profileit-key']
@@ -32,16 +32,6 @@ if defined?(ActionController) && defined?(ActionController::Base)
   ActionController::Base.class_eval do
     include ProfileIt::Tracer
     include ::ProfileIt::Instruments::ActionControllerInstruments
-
-    def rescue_action_with_profile_it(exception)
-      ProfileIt::Agent.instance.store.track!("Errors/Request",1, :scope => nil)
-      ProfileIt::Agent.instance.store.ignore_transaction!
-      rescue_action_without_profile_it exception
-    end
-
-    alias_method :rescue_action_without_profile_it, :rescue_action
-    alias_method :rescue_action, :rescue_action_with_profile_it
-    protected :rescue_action
   end
   ProfileIt::Agent.instance.logger.debug "Instrumenting ActionView::Template"
   ActionView::Template.class_eval do

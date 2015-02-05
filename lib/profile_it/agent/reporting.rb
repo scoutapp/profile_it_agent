@@ -7,10 +7,10 @@ module ProfileIt
         URI.parse("#{config.settings['host']}/#{config.settings['key']}/profiles/create?name=#{CGI.escape(config.settings['name'])}&rails_version=#{Rails::VERSION::STRING}&gem_version=#{ProfileIt::VERSION}")
       end
 
-      def send_transaction(transaction)
+      def send_profile(profile)
         uri = checkin_uri
-        logger.debug "Sending transaction profile [#{transaction.uri}] to #{uri}"
-        form_data = transaction.to_form_data.merge({
+        logger.debug "Sending profile [#{profile.uri}] to #{uri}"
+        form_data = profile.to_form_data.merge({
                 "profile[extension_version]" => Thread::current[:profile_it_extension_version],
                 "profile[extension_fingerprint]" => Thread::current[:profile_it_extension_fingerprint],
                 "profile[user_id]" => Thread::current[:profile_it_user_id]
@@ -19,12 +19,12 @@ module ProfileIt
           begin
             response =  post(uri, form_data)
             if response and response.is_a?(Net::HTTPSuccess)
-              logger.debug "Transaction Profile Sent [#{transaction.uri}]."
+              logger.debug "Profile Sent [#{profile.uri}]."
             else
-              logger.debug "Error sending transaction sample [#{transaction.uri}]."
+              logger.debug "Error sending profile [#{profile.uri}]."
             end
           rescue Exception => e
-            logger.error "Exception sending transaction sample [#{transaction.uri}]: [#{e}]"
+            logger.error "Exception sending profile [#{profile.uri}]: [#{e}]"
             logger.error e.backtrace.join("\n")
           end
         end

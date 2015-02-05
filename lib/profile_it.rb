@@ -18,7 +18,7 @@ require File.expand_path('../profile_it/metric_stats.rb', __FILE__)
 require File.expand_path('../profile_it/stack_item.rb', __FILE__)
 require File.expand_path('../profile_it/store.rb', __FILE__)
 require File.expand_path('../profile_it/tracer.rb', __FILE__)
-require File.expand_path('../profile_it/transaction_profile.rb', __FILE__)
+require File.expand_path('../profile_it/profile.rb', __FILE__)
 
 if defined?(Rails) and Rails.respond_to?(:version) and Rails.version >= '3'
   module ProfileIt

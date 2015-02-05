@@ -6,32 +6,32 @@ class ProfileIt::Store
   MAX_SIZE = 1000
   
   attr_accessor :metric_hash
-  attr_accessor :transaction_hash
+  attr_accessor :profile_hash
   attr_accessor :stack
   attr_accessor :sample
-  attr_reader :transaction_sample_lock
+  attr_reader :profile_sample_lock
   
   def initialize
     @metric_hash = Hash.new
-    # Stores aggregate metrics for the current transaction. When the transaction is finished, metrics
+    # Stores aggregate metrics for the current profile. When the profile is finished, metrics
     # are merged with the +metric_hash+.
-    @transaction_hash = Hash.new
+    @profile_hash = Hash.new
     @stack = Array.new
-    # ensure background thread doesn't manipulate transaction sample while the store is.
-    @transaction_sample_lock = Mutex.new
+    # ensure background thread doesn't manipulate profile sample while the store is.
+    @profile_sample_lock = Mutex.new
   end
   
-  # Called when the last stack item completes for the current transaction to clear
+  # Called when the last stack item completes for the current profile to clear
   # for the next run.
-  def reset_transaction!
-    Thread::current[:profile_it_ignore_transaction] = nil
+  def reset_profile!
+    Thread::current[:profile_it_ignore] = nil
     Thread::current[:profile_it_scope_name] = nil
-    @transaction_hash = Hash.new
+    @profile_hash = Hash.new
     @stack = Array.new
   end
   
-  def ignore_transaction!
-    Thread::current[:profile_it_ignore_transaction] = true
+  def ignore_profile!
+    Thread::current[:profile_it_ignore] = true
   end
   
   # Called at the start of Tracer#instrument:
@@ -49,15 +49,15 @@ class ProfileIt::Store
     item = stack.pop
     stack_empty = stack.empty?
 
-    # if ignoring the transaction, the item is popped but nothing happens. 
-    if Thread::current[:profile_it_ignore_transaction]
+    # if ignoring the profile, the item is popped but nothing happens. 
+    if Thread::current[:profile_it_ignore]
       return
     end
     # unbalanced stack check - unreproducable cases have seen this occur. when it does, sets a Thread variable 
-    # so we ignore further recordings. +Store#reset_transaction!+ resets this. 
+    # so we ignore further recordings. +Store#reset_profile!+ resets this. 
     if item != sanity_check_item
       ProfileIt::Agent.instance.logger.warn "Scope [#{Thread::current[:profile_it_scope_name]}] Popped off stack: #{item.inspect} Expected: #{sanity_check_item.inspect}. Aborting."
-      ignore_transaction!
+      ignore_profile!
       return
     end
     duration = Time.now - item.start_time
@@ -68,16 +68,16 @@ class ProfileIt::Store
     meta.scope = nil if stack_empty
     
     # add backtrace for slow calls ... how is exclusive time handled?
-    if duration > ProfileIt::TransactionProfile::BACKTRACE_THRESHOLD and !stack_empty
-      meta.extra = {:backtrace => ProfileIt::TransactionProfile.backtrace_parser(caller)}
+    if duration > ProfileIt::Profile::BACKTRACE_THRESHOLD and !stack_empty
+      meta.extra = {:backtrace => ProfileIt::Profile.backtrace_parser(caller)}
     end
-    stat = transaction_hash[meta] || ProfileIt::MetricStats.new(!stack_empty)
+    stat = profile_hash[meta] || ProfileIt::MetricStats.new(!stack_empty)
     stat.update!(duration,duration-item.children_time)
-    transaction_hash[meta] = stat if store_metric?(stack_empty)
-    # Uses controllers as the entry point for a transaction. Otherwise, stats are ignored.
+    profile_hash[meta] = stat if store_metric?(stack_empty)
+    # Uses controllers as the entry point for a profile. Otherwise, stats are ignored.
     if stack_empty and meta.metric_name.match(/\AController\//)
-      aggs=aggregate_calls(transaction_hash.dup,meta)
-      store_transaction(options[:uri],options[:request_id],transaction_hash.dup.merge(aggs),meta,stat)  
+      aggs=aggregate_calls(profile_hash.dup,meta)
+      store_profile(options[:uri],options[:request_id],profile_hash.dup.merge(aggs),meta,stat)  
       # deep duplicate  
       duplicate = aggs.dup
       duplicate.each_pair do |k,v|
@@ -87,12 +87,12 @@ class ProfileIt::Store
     end
   end
   
-  # TODO - Move more logic to TransactionProfile
+  # TODO - Move more logic to Profile
   #
-  # Limits the size of the transaction hash to prevent a large transactions. The final item on the stack
-  # is allowed to be stored regardless of hash size to wrapup the transaction sample w/the parent metric.
+  # Limits the size of the profile hash to prevent a large profiles. The final item on the stack
+  # is allowed to be stored regardless of hash size to wrapup the profile sample w/the parent metric.
   def store_metric?(stack_empty)
-    transaction_hash.size < ProfileIt::TransactionProfile::MAX_SIZE or stack_empty
+    profile_hash.size < ProfileIt::Profile::MAX_SIZE or stack_empty
   end
   
   # Returns the top-level category names used in the +metrics+ hash.
@@ -125,9 +125,9 @@ class ProfileIt::Store
     aggregates
   end
 
-  def store_transaction(uri,request_id,transaction_hash,parent_meta,parent_stat,options = {})
-    transaction = ProfileIt::TransactionProfile.new(uri,request_id,parent_meta.metric_name,parent_stat.total_call_time,transaction_hash.dup)
-    ProfileIt::Agent.instance.send_transaction(transaction)
+  def store_profile(uri,request_id,profile_hash,parent_meta,parent_stat,options = {})
+    profile = ProfileIt::Profile.new(uri,request_id,parent_meta.metric_name,parent_stat.total_call_time,profile_hash.dup)
+    ProfileIt::Agent.instance.send_profile(profile)
   end
   
   # Finds or creates the metric w/the given name in the metric_hash, and updates the time. Primarily used to 
