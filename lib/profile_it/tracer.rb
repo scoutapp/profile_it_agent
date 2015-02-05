@@ -13,9 +13,9 @@ module ProfileIt::Tracer
   
   module ClassMethods
     
-    # Use to trace a method call, possibly reporting slow transaction traces to profile_it. 
+    # Use to trace a method call, possibly reporting slow profile traces to profile_it. 
     def profile_request(metric_name, options = {}, &block)
-      ProfileIt::Agent.instance.store.reset_transaction!      
+      ProfileIt::Agent.instance.store.reset_profile!      
       profile_it_instrument(metric_name, options) do
         Thread::current[:profile_it_scope_name] = metric_name
         yield
@@ -25,11 +25,11 @@ module ProfileIt::Tracer
     
     # Options:
     # - :scope => If specified, sets the sub-scope for the metric. We allow additional scope level. This is used
-    # when rendering the transaction tree in the UI. 
+    # when rendering the profile tree in the UI. 
     def profile_it_instrument(metric_name, options={}, &block)
       # why was this here? this would remove the scope name so the request wouldn't be instrumented.
-      #  ProfileIt::Agent.instance.store.reset_transaction!      
-      # don't instrument if (1) NOT inside a transaction and (2) NOT a Controller metric.
+      #  ProfileIt::Agent.instance.store.reset_profile!      
+      # don't instrument if (1) NOT inside a profile and (2) NOT a Controller metric.
       if !Thread::current[:profile_it_scope_name] and metric_name !~ /\AController\//
         return yield
       end
