@@ -2,7 +2,10 @@
 module ProfileIt
   class Agent
     module Reporting
-     
+
+      CA_FILE     = File.join( File.dirname(__FILE__), *%w[.. .. data cacert.pem] )
+      VERIFY_MODE = OpenSSL::SSL::VERIFY_PEER | OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
+
       def checkin_uri
         URI.parse("#{config.settings['host']}/#{config.settings['key']}/profiles/create?name=#{CGI.escape(config.settings['name'])}&rails_version=#{Rails::VERSION::STRING}&gem_version=#{ProfileIt::VERSION}")
       end
@@ -70,9 +73,8 @@ module ProfileIt
 
         if uri.is_a?(URI::HTTPS)
           http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          # TODO http.ca_file = ... see scout agent http.rb
-          # TODO http.verify_mode = ... see scout agent http.rb
+          http.ca_file = CA_FILE
+          http.verify_mode = VERIFY_MODE
         end
         http
       end
