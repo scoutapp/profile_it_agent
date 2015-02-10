@@ -3,7 +3,7 @@ module ProfileIt
   class Agent
     module Reporting
 
-      CA_FILE     = File.join( File.dirname(__FILE__), *%w[.. .. data cacert.pem] )
+      CA_FILE     = File.join( File.dirname(__FILE__), *%w[.. .. .. data cacert.pem] )
       VERIFY_MODE = OpenSSL::SSL::VERIFY_PEER | OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
 
       def checkin_uri

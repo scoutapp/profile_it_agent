@@ -1,3 +1,7 @@
+# 0.2.5
+
+* Fixed SSL root certificate path
+
 # 0.2.4
 
 * Completing TransactionProfile => Profile rename
