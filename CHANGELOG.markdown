@@ -1,3 +1,7 @@
+# 0.2.6
+
+* Don't start agent when running in console
+
 # 0.2.5
 
 * Fixed SSL root certificate path

@@ -20,15 +20,17 @@ require File.expand_path('../profile_it/store.rb', __FILE__)
 require File.expand_path('../profile_it/tracer.rb', __FILE__)
 require File.expand_path('../profile_it/profile.rb', __FILE__)
 
-if defined?(Rails) and Rails.respond_to?(:version) and Rails.version >= '3'
-  module ProfileIt
-    class Railtie < Rails::Railtie
-      initializer "profile_it.start" do |app|
-        ProfileIt::Agent.instance.start
+if defined?(Rails) and !defined?(Rails::Console)
+  if Rails.respond_to?(:version) and Rails.version >= '3'
+    module ProfileIt
+      class Railtie < Rails::Railtie
+        initializer "profile_it.start" do |app|
+          ProfileIt::Agent.instance.start
+        end
       end
     end
+  else
+    ProfileIt::Agent.instance.start
   end
-else
-  ProfileIt::Agent.instance.start
 end
 
