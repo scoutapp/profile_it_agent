@@ -7,7 +7,7 @@ module ProfileIt
       VERIFY_MODE = OpenSSL::SSL::VERIFY_PEER | OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
 
       def checkin_uri
-        URI.parse("#{config.settings['host']}/#{config.settings['key']}/profiles/create?name=#{CGI.escape(config.settings['name'])}&rails_version=#{Rails::VERSION::STRING}&gem_version=#{ProfileIt::VERSION}")
+        URI.parse("#{config.settings['host']}/#{config.settings['key']}/profiles/create?name=#{CGI.escape(config.settings['name'])}&rails_version=#{Rails::VERSION::STRING}&gem_version=#{ProfileIt::VERSION}&env=#{Rails.env}")
       end
 
       def send_profile(profile)
