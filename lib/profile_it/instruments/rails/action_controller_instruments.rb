@@ -18,7 +18,12 @@ module ProfileIt::Instruments
       key_from_headers = request.headers['x-profileit-key']
       if !key_from_headers.blank? && key_from_headers == ProfileIt::Agent.instance.config.settings['key']
         profile_it_controller_action = "Controller/#{controller_path}/#{action_name}"
-        self.class.profile_request(profile_it_controller_action, :uri => request.request_uri) do
+        Thread::current[:profile_it_extension_fingerprint]=request.headers['x-profileit-extension-fingerprint']
+        Thread::current[:profile_it_extension_version]=request.headers['x-profileit-extension-version']
+        Thread::current[:profile_it_user_id]=request.headers['x-profileit-user-id']
+        request_id = SecureRandom.hex(16) # since rails 2 doesn't set an x-request-id header, generate our own
+        response.headers['x-profileit-request-id'] = request_id
+        self.class.profile_request(profile_it_controller_action, :uri => request.request_uri, :request_id=>request_id) do
           perform_action_without_profile_it_instruments(*args, &block)
         end
       else
