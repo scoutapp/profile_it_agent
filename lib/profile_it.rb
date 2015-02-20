@@ -7,6 +7,7 @@ require 'net/https'
 require 'logger'
 require 'yaml'
 require 'cgi'
+require 'securerandom'
 require File.expand_path('../profile_it/version.rb', __FILE__)
 require File.expand_path('../profile_it/agent.rb', __FILE__)
 require File.expand_path('../profile_it/agent/logging.rb', __FILE__)

@@ -1,3 +1,7 @@
+# 0.2.8
+
+* Tentative Rails 2.3 support
+
 # 0.2.6
 
 * Don't start agent when running in console
