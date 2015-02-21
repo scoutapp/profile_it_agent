@@ -5,8 +5,9 @@ module ProfileIt::Instruments
     def process_action(*args)
       key_from_headers = request.headers['x-profileit-key']
       # ProfileIt::Agent.instance.logger.debug "in perform_action_with_profile_it_instruments request key = #{key_from_headers}. config key = #{ProfileIt::Agent.instance.config.settings['key']}. "
-      if !key_from_headers.blank? && key_from_headers == ProfileIt::Agent.instance.config.settings['key']
+      if (ProfileIt::Agent.instance.environment.env == 'development') or (!key_from_headers.blank? && key_from_headers == ProfileIt::Agent.instance.config.settings['key'])
         profile_it_controller_action = "Controller/#{controller_path}/#{action_name}"
+        response.headers['x-profileit-request-id'] = request.env["action_dispatch.request_id"]
         self.class.profile_request(profile_it_controller_action, :uri => request.fullpath, :request_id => request.env["action_dispatch.request_id"]) do
           Thread::current[:profile_it_extension_fingerprint]=request.headers['x-profileit-extension-fingerprint']
           Thread::current[:profile_it_extension_version]=request.headers['x-profileit-extension-version']
