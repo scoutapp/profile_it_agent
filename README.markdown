@@ -1,24 +1,12 @@
 # ProfileIt
 
-A Ruby gem for detailed Rails profiling analysis. Metrics are reported to [profileit.io](https://profileit.io).
+A Ruby gem for detailed in-browser Rails profiling analysis. Metrics are reported to [profileit.io](https://profileit.io).
+
+![screenshot](https://dl.dropboxusercontent.com/u/468982/extension_page.png)
 
 ## Getting Started
 
-Install the gem:
-
-    gem install profile_it
-    
-Signup for a [profileit.io](https://profileit.io) account and copy the config file to `RAILS_ROOT/config/profile_it.yml`.
-
-Your config file should look like:
-
-    common: &defaults
-      name: YOUR_APPLICATION_NAME
-      key: YOUR_APPLICATION_KEY
-      profile: true
-
-    production:
-      <<: *defaults
+[See instructions](https://profileit.io/help) on ProfileIt.io to get started.
       
 ## Supported Frameworks
 
