@@ -1,3 +1,7 @@
+# 0.2.8.1
+
+* Updating gem homepage
+
 # 0.2.8
 
 * Tentative Rails 2.3 support
