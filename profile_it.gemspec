@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = ProfileIt::VERSION
   s.authors     = ["Derek Haynes",'Andre Lewis']
   s.email       = ["support@scoutapp.com"]
-  s.homepage    = "https://github.com/scoutapp/profile_it"
+  s.homepage    = "https://github.com/scoutapp/profile_it_agent"
   s.summary     = "Rails Profiler UI"
   s.description = "Profile a Ruby on Rails application in your browser and reports detailed metrics to profileit.io."
 
