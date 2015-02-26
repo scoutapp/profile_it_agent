@@ -52,11 +52,11 @@ module ProfileIt
         logger.debug "got response: #{response.inspect}"
         case response
         when Net::HTTPSuccess, Net::HTTPNotModified
-          logger.debug "/checkin OK"
+          logger.debug "Send Profile: OK"
         when Net::HTTPBadRequest
-          logger.warn "/checkin FAILED: The Account Key [#{config.settings['key']}] is invalid."
+          logger.warn "Send Profile: FAILED: The Account Key [#{config.settings['key']}] is invalid."
         else
-          logger.debug "/checkin FAILED: #{response.inspect}"
+          logger.warn "Send Profile: FAILED: #{response.inspect}"
         end
       rescue Exception
         logger.debug "Exception sending request to server: #{$!.message}"

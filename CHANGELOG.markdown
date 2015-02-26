@@ -1,3 +1,10 @@
+# 0.2.9
+
+* Set default log_level to INFO
+* Removed default key
+* Warning on failed ability to send a profile
+* Warning and exiting when no key provided
+
 # 0.2.8.1
 
 * Updating gem homepage

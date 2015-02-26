@@ -49,6 +49,9 @@ module ProfileIt
       if !config.settings['profile']
         logger.warn "Profiling isn't enabled for the [#{environment.env}] environment."
         return false
+      elsif !config.settings['key']
+        logger.warn "The config file doesn't specify an account key. See https://profileit.io/help for a install instructions."
+        return false
       # elsif !environment.app_server
       #   logger.warn "Couldn't find a supported app server. Not starting agent."
       #   return false
